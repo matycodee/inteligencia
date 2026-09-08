@@ -1,0 +1,7 @@
+﻿ID: 001 | Producto: Whey Protein Isolate 2kg | Categoria: Proteinas | Precio: 74990 | Stock: 8 | Sabor: Vainilla
+ID: 002 | Producto: Creatina Monohidratada 500g | Categoria: Creatinas | Precio: 35000 | Stock: 15 | Sabor: Sin Sabor
+ID: 003 | Producto: BCAA 2:1:1 300g | Categoria: Aminoacidos | Precio: 19990 | Stock: 10 | Sabor: Lemon Lime
+ID: 004 | Producto: Glutamina Powder 300g | Categoria: Recuperacion | Precio: 24990 | Stock: 7 | Sabor: Sin Sabor
+ID: 005 | Producto: Pre-Entreno Demon Lab | Categoria: Pre-entrenos | Precio: 28990 | Stock: 4 | Sabor: Uva
+ID: 006 | Producto: Omega 3 Fish Oil 100cap | Categoria: Salud y Bienestar | Precio: 14990 | Stock: 20 | Sabor: Capsulas
+ID: 007 | Producto: Shaker Deportivo 700ml | Categoria: Accesorios | Precio: 5990 | Stock: 30 | Sabor: Negro

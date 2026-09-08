@@ -1,4 +1,7 @@
-﻿id,producto,stock,precio
-1,Proteina Whey 1kg,15,35990
-2,Creatina Monohidratada 300g,25,18990
-3,BCAA 240c,10,14990
+004,Whey Protein Isolate 2kg,Proteinas,74990,8,Vainilla
+005,Creatina Monohidratada 500g,Creatinas,35000,15,Sin Sabor
+006,BCAA 2:1:1 300g,Aminoacidos,19990,10,Lemon Lime
+007,Pre-Entreno Demon Lab,Pre-entrenos,28990,4,Uva
+008,Glutamina Powder 300g,Recuperacion,24990,7,Sin Sabor
+009,Omega 3 Fish Oil 100cap,Salud y Bienestar,14990,20,Capsulas
+010,Shaker Deportivo 700ml,Accesorios,5990,30,Negro
