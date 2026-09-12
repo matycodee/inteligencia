@@ -9,7 +9,18 @@ Este repositorio tiene el código del proyecto para la Evaluación Parcial N°1 
 
 ## Cómo correrlo en tu equipo
 
-1. **Clona este repositorio:**
+1. **Instalar dependencias:**
    ```bash
-   git clone [https://github.com/matycodee/inteligencia.git](https://github.com/matycodee/inteligencia.git)
-   cd inteligencia
+   pip install -r requirements.txt
+   ```
+
+2. **Opción A - Interfaz Web Interactiva (Recomendado):**
+   ```bash
+   python web_app.py
+   ```
+   Luego abre tu navegador en **`http://localhost:8000`** para interactuar con la interfaz visual, chat en vivo y catálogo en tiempo real.
+
+3. **Opción B - Modo Consola (Terminal CLI):**
+   ```bash
+   python app.py
+   ```

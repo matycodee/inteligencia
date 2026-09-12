@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriBot | Asistente Inteligente NutriFit Chile</title>
+  <meta name="description" content="Asistente RAG inteligente conectado a la base de conocimientos e inventario en tiempo real de NutriFit Chile.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Ambient background glow effects -->
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <div class="app-layout">
+    <!-- Main Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon-wrapper">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <span class="status-dot-pulse"></span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-row">
+            <h1 class="brand-title">NutriBot <span class="badge-ai">RAG Local</span></h1>
+          </div>
+          <p class="brand-subtitle">Asistente Inteligente • NutriFit Chile</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="toggle-inventory-btn" class="header-btn secondary-btn" title="Alternar panel de inventario">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h7"/>
+          </svg>
+          <span class="btn-text">Inventario en Vivo</span>
+        </button>
+
+        <button id="toggle-tts-btn" class="header-btn icon-only-btn" title="Activar/Desactivar lectura por voz">
+          <svg id="tts-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+
+        <button id="clear-chat-btn" class="header-btn icon-only-btn" title="Limpiar conversación">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="main-container">
+      <!-- Chat Container -->
+      <section class="chat-section" aria-label="Sección de Chat">
+        <div class="chat-messages-container" id="chat-messages">
+          
+          <!-- Welcome Greeting Card -->
+          <div class="welcome-card" id="welcome-card">
+            <div class="welcome-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+              </svg>
+            </div>
+            <h2 class="welcome-title">¡Hola! ¿En qué puedo ayudarte hoy?</h2>
+            <p class="welcome-desc">
+              Soy tu consultor de suplementación de <strong>NutriFit Chile</strong>. Estoy conectado directamente a nuestra base vectorial para responder preguntas de stock, precios y características de nuestros productos.
+            </p>
+
+            <div class="quick-suggestions-box">
+              <span class="suggestions-label">💡 Consultas rápidas:</span>
+              <div class="suggestions-grid">
+                <button class="suggestion-pill" data-prompt="¿Cuánto cuesta la Proteina Whey de 1kg y cuánto stock queda?">
+                  💪 Proteína Whey 1kg
+                </button>
+                <button class="suggestion-pill" data-prompt="¿Tienen stock disponible de Creatina Monohidratada?">
+                  ⚡ Creatina Monohidratada
+                </button>
+                <button class="suggestion-pill" data-prompt="¿Cuál es el precio del suplemento BCAA 240c?">
+                  💊 BCAA 240 cápsulas
+                </button>
+                <button class="suggestion-pill" data-prompt="Muestra el catálogo completo de productos">
+                  📋 Ver todo el catálogo
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="chat-input-wrapper">
+          <div class="prompt-chips-bar" id="prompt-chips-bar">
+            <button class="mini-chip" data-prompt="¿Cuál es el producto más económico?">🏷️ Más económico</button>
+            <button class="mini-chip" data-prompt="¿Qué productos tienen más de 15 unidades?">📦 Mayor stock</button>
+            <button class="mini-chip" data-prompt="¿Tienen creatina en stock?">⚡ Creatina</button>
+            <button class="mini-chip" data-prompt="¿Qué suplementos para recuperación muscular tienen?">🏋️ Recuperación muscular</button>
+          </div>
+
+          <form id="chat-form" class="chat-input-form">
+            <div class="input-container">
+              <textarea 
+                id="user-input" 
+                placeholder="Escribe tu consulta sobre stock, precios o suplementos..." 
+                rows="1" 
+                maxlength="500"
+                required></textarea>
+              
+              <div class="input-actions">
+                <button type="button" id="voice-input-btn" class="input-action-btn" title="Dictado por voz">
+                  <svg id="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                  </svg>
+                </button>
+
+                <button type="submit" id="send-btn" class="send-button" title="Enviar mensaje">
+                  <span class="send-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="input-footer-note">
+            ⚡ Potenciado por RAG Local con <code>ChromaDB</code> y <code>all-MiniLM-L6-v2</code> • 100% privado y sin consumo de tokens
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Inventory Sidebar -->
+      <aside class="inventory-sidebar" id="inventory-sidebar" aria-label="Inventario en Tiempo Real">
+        <div class="sidebar-header">
+          <div class="sidebar-title-row">
+            <div class="sidebar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="sidebar-title">Base de Datos</h2>
+              <span class="sidebar-meta">inventario.csv</span>
+            </div>
+          </div>
+          <button id="refresh-inventory-btn" class="icon-refresh-btn" title="Actualizar inventario">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- KPI Metrics Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-label">Productos</span>
+            <span class="kpi-value" id="kpi-products">3</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Stock Total</span>
+            <span class="kpi-value highlight-green" id="kpi-stock">50 un.</span>
+          </div>
+          <div class="kpi-card wide-kpi">
+            <span class="kpi-label">Valuación Total</span>
+            <span class="kpi-value highlight-cyan" id="kpi-valuation">$1.164.500 CLP</span>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="inventory-search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="inventory-search" placeholder="Filtrar por nombre o ID...">
+        </div>
+
+        <!-- Inventory Items List -->
+        <div class="inventory-list" id="inventory-list">
+          <div class="loading-spinner-wrapper">
+            <div class="spinner"></div>
+            <span>Cargando catálogo...</span>
+          </div>
+        </div>
+
+        <!-- RAG Architecture Info Footer -->
+        <div class="rag-info-card">
+          <div class="rag-info-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Arquitectura RAG NutriFit</span>
+          </div>
+          <p class="rag-info-text">
+            Los datos se vectorizan con <strong>MiniLM</strong> y se consultan semánticamente con <strong>ChromaDB</strong> en tu propia máquina.
+          </p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
