@@ -1,0 +1,3 @@
+Producto: Proteina Whey 1kg | ID: 1 | Stock: 15 unidades | Precio: $35.990 CLP | Descripcion: Proteina concentrada de suero de leche para desarrollo y recuperacion muscular.
+Producto: Creatina Monohidratada 300g | ID: 2 | Stock: 25 unidades | Precio: $18.990 CLP | Descripcion: Creatina micronizada de alta pureza para fuerza, potencia y rendimiento deportivo.
+Producto: BCAA 240c | ID: 3 | Stock: 10 unidades | Precio: $14.990 CLP | Descripcion: Aminoacidos de cadena ramificada ratio 2:1:1 en capsulas para proteccion y regeneracion muscular.
