@@ -1,128 +1,97 @@
-<<<<<<< HEAD
-﻿import os
-from langchain_core.documents import Document
-from langchain_community.document_loaders import TextLoader
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_ollama import ChatOllama
-=======
 import os
 import warnings
 warnings.filterwarnings("ignore")
 
 from langchain_community.document_loaders import TextLoader, PyPDFLoader
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
->>>>>>> 4f97ee0b206760aef49f5ff971b871e9bc446b1e
 from langchain_community.vectorstores import Chroma
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
-<<<<<<< HEAD
+from langchain_core.tools import tool
+from langchain_core.messages import SystemMessage
 
-def iniciar_agente():
-    print("Cargando la base de conocimientos local de NutriFit...")
-    
-    documentos = []
-    with open('./data/inventario.txt', 'r', encoding='utf-8') as f:
-        for linea in f:
-            if linea.strip():
-                documentos.append(Document(page_content=linea.strip()))
-                
-    loader_politicas = TextLoader(file_path='./data/politicas.txt', encoding='utf-8')
-    documentos.extend(loader_politicas.load())
-    
-    print("Vectorizando datos localmente con HuggingFace...")
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectorstore = Chroma.from_documents(documents=documentos, embedding=embeddings)
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 1})
-    
-=======
+# NUEVO: Importaciones modernas de LangGraph que reemplazan a langchain.agents
+from langgraph.prebuilt import create_react_agent
+from langgraph.checkpoint.memory import MemorySaver
 
 # Configuración de API Key de OpenAI desde variable de entorno
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# 1. HERRAMIENTA DE ESCRITURA (Tickets)
+@tool
+def registrar_ticket(problema: str) -> str:
+    """Útil para escribir, registrar o guardar un ticket de soporte cuando un cliente tiene un reclamo o falta stock."""
+    with open("tickets_soporte.txt", "a", encoding="utf-8") as f:
+        f.write(f"TICKET DE SOPORTE: {problema}\n---\n")
+    return "El ticket fue redactado y guardado exitosamente en el sistema."
 
 def iniciar_agente():
     print("Cargando la base de conocimientos de NutriFit...")
     
-    # 1. Cargamos el inventario en texto plano estructurado
     loader_txt = TextLoader(file_path="./data/inventario.txt", encoding="utf-8")
     docs_txt = loader_txt.load()
-    
-    # 2. Cargamos las políticas corporativas en PDF
     loader_pdf = PyPDFLoader(file_path="./data/politicas.pdf")
     docs_pdf = loader_pdf.load_and_split()
-    
-    # Unificamos las fuentes de datos
     documentos = docs_txt + docs_pdf
     
     print("Vectorizando datos con OpenAI Embeddings...")
     vectorstore = Chroma.from_documents(documents=documentos, embedding=OpenAIEmbeddings())
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
     
-    # k en 1 para que devuelva exactamente el fragmento correspondiente sin mezclar información
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 1})
-    
-    # Directrices estrictas del sistema para el asistente NutriBot
->>>>>>> 4f97ee0b206760aef49f5ff971b871e9bc446b1e
-    system_prompt = (
-        "Eres 'NutriBot', un asistente técnico exclusivo para los ejecutivos de soporte de NutriFit Chile. "
-        "Tu objetivo es responder consultas basándote ÚNICAMENTE en el siguiente contexto recuperado. "
-        "Si la respuesta no se encuentra en el contexto, debes responder textualmente: "
-        "'No poseo esa información en mis registros actuales'. "
-        "Bajo ninguna circunstancia inventes precios, ni políticas, ni stock.\n\n"
-        "Contexto recuperado:\n{context}"
-    )
-    
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
-        ("human", "{input}"),
-    ])
-    
-<<<<<<< HEAD
-    # Apuntamos la base de Ollama a la ruta local exacta de Windows
-    ollama_path = os.path.expandvars(r"%LOCALAPPDATA%\Programs\Ollama\ollama.exe")
-    llm = ChatOllama(model="llama3", temperature=0, base_url="http://localhost:11434")
-=======
-    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
->>>>>>> 4f97ee0b206760aef49f5ff971b871e9bc446b1e
-    
-    def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
+    # 2. HERRAMIENTA DE CONSULTA (RAG)
+    @tool
+    def consultar_base_datos(consulta: str) -> str:
+        """Útil para buscar información estricta de inventario, stock, precios y políticas corporativas de NutriFit."""
+        documentos_recuperados = retriever.invoke(consulta)
+        return "\n\n".join(doc.page_content for doc in documentos_recuperados)
 
-<<<<<<< HEAD
-=======
-    # Cadena RAG con LCEL (LangChain Expression Language)
->>>>>>> 4f97ee0b206760aef49f5ff971b871e9bc446b1e
-    rag_chain = (
-        {"context": retriever | format_docs, "input": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
+    tools = [consultar_base_datos, registrar_ticket]
+    llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+
+    # 3. PROMPT DEL AGENTE
+    system_message = SystemMessage(
+        content=(
+            "Eres 'NutriBot', un agente técnico exclusivo para los ejecutivos de soporte de NutriFit Chile. "
+            "REGLAS ESTRICTAS: "
+            "1. Si te preguntan por productos o políticas, DEBES usar la herramienta 'consultar_base_datos'. "
+            "2. Si la información no está en la base de datos, responde textualmente: 'No poseo esa información en mis registros actuales'. "
+            "3. Nunca inventes precios, ni políticas, ni stock. "
+            "4. Si te piden levantar, guardar o registrar un ticket, usa la herramienta 'registrar_ticket'."
+        )
     )
-    return rag_chain
+
+    # 4. MEMORIA (Usando LangGraph MemorySaver)
+    memory = MemorySaver()
+
+    # 5. ORQUESTACIÓN DEL AGENTE CON LANGGRAPH (El estándar moderno)
+    agent_executor = create_react_agent(
+        llm, 
+        tools, 
+        state_modifier=system_message,
+        checkpointer=memory
+    )
+    
+    return agent_executor
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    agente = iniciar_agente()
-    print("\n--- NutriBot (Modo Local Gratuito) Iniciado. Escribe 'salir' para terminar ---")
-    while True:
-        pregunta = input("\nEjecutivo NutriFit: ")
-        if pregunta.lower() == 'salir':
-            break
-        respuesta = agente.invoke(pregunta)
-        print(f"\nNutriBot: {respuesta}")
-=======
     try:
         agente = iniciar_agente()
-        print("\n--- NutriBot Iniciado. Escribe 'salir' para terminar ---")
+        print("\n--- NutriBot Agente Iniciado. Escribe 'salir' para terminar ---")
+        
+        # Configuración para mantener el hilo de la conversación (Memoria)
+        config = {"configurable": {"thread_id": "sesion_1"}}
+        
         while True:
             pregunta = input("\nEjecutivo NutriFit: ")
             if pregunta.lower() == "salir":
                 break
             try:
-                respuesta = agente.invoke(pregunta)
-                print(f"\nNutriBot: {respuesta}")
+                # Invocamos el agente pasándole el mensaje del usuario
+                respuesta = agente.invoke(
+                    {"messages": [("user", pregunta)]}, 
+                    config
+                )
+                # LangGraph devuelve una lista de mensajes, imprimimos el último (la respuesta del bot)
+                print(f"\nNutriBot: {respuesta['messages'][-1].content}")
             except Exception as e:
                 print(f"\n[Error al procesar consulta]: {e}")
     except Exception as e:
         print(f"\n[Error al inicializar agente]: {e}")
->>>>>>> 4f97ee0b206760aef49f5ff971b871e9bc446b1e
